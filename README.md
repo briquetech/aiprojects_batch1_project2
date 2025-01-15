@@ -1,6 +1,4 @@
-# This is AI Projects, Batch1, Project 2
-
-# Personal Newsletter
+# This is AI Projects, Batch1, Project 2: Personal Newsletter
 
 This project is a personal newsletter application with a chat interface similar to WhatsApp. The chat interface is hosted at [https://brique.in/chat.html](https://brique.in/chat.html).
 
