@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Article Cards</title>
+	<!-- Bootstrap CSS v5.2.1 -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<style>
+		.card-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			overflow: hidden;
+		}
+		.card {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		.card-img-top {
+			height: 50%;
+			object-fit: cover;
+		}
+		.card-body {
+			flex: 1;
+			overflow-y: auto;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="card-container" id="feed-container">
+		<div id="card" class="card">
+			<!-- <img src="" class="card-img-top" alt="..."> -->
+			<div class="card-body">
+				<h5 class="card-title"></h5>
+				<p class="card-text"></p>
+				<a href="#" class="btn btn-primary">Read more</a>
+			</div>
+			<div class="card-footer">
+				<small class="text-muted" id="article-published"></small>
+				<small class="text-muted" id="article-site"></small>
+				<small class="text-muted" id="article-category"></small>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Bootstrap JavaScript Libraries -->
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+	
+	<script>
+		function handleScroll(event) {
+			if (event.deltaY < 0) {
+				// Scroll up
+				currentIndex = (currentIndex + 1) % articles.length;
+			} else {
+				// Scroll down
+				currentIndex = (currentIndex - 1 + articles.length) % articles.length;
+			}
+			displayArticle(currentIndex);
+		}
+		
+		function handleSwipe(event) {
+			if (event.deltaY < 0) {
+				// Swipe up
+				currentIndex = (currentIndex + 1) % articles.length;
+			} else {
+				// Swipe down
+				currentIndex = (currentIndex - 1 + articles.length) % articles.length;
+			}
+			displayArticle(currentIndex);
+		}
+		
+		document.addEventListener('wheel', handleScroll);
+		document.addEventListener('touchmove', handleSwipe);
+		
+		// Initial display
+		// displayArticle(currentIndex);
+		
+		async function fetchLatestFeeds(page = 1) {
+			const url = 'https://brique.in/getfeeds.php';
+			const token = btoa('briquetech');
+			const headers = {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token
+			};
+			try {
+				const response = await fetch(url, {
+					method: 'PUT',
+					headers: headers,
+					body: JSON.stringify({ page: page }),
+					mode: 'cors'
+				});
+				
+				const result = await response.json();
+				
+				if (response.ok && result.status === 1) {
+					const feeds = result.data;
+					const container = document.getElementById('feed-container');
+					container.innerHTML = '';
+					
+					feeds.forEach(feed => {
+						const card = document.createElement('div');
+						card.className = 'card mb-3';
+						
+						const cardBody = `
+								<div class="row g-0">
+									<div class="col-md-4">
+										<img src="${feed.logo}" class="img-fluid rounded-start" alt="${feed.site}">
+									</div>
+									<div class="col-md-8">
+										<div class="card-body">
+											<h5 class="card-title">${feed.title}</h5>
+											<p class="card-text">${feed.summary}</p>
+											<p class="card-text"><small class="text-muted">${feed.published}</small></p>
+											<p class="card-text"><small class="text-muted">${feed.site}</small></p>
+											<a href="${feed.link}" class="btn btn-primary" target="_blank">Read more</a>
+										</div>
+									</div>
+								</div>
+							`;
+						
+						card.innerHTML = cardBody;
+						container.appendChild(card);
+					});
+				} else {
+					console.error('Failed to fetch feeds:', result);
+				}
+			} catch (error) {
+				console.error('Error:', error);
+			}
+		}
+		
+		// Call the function to fetch and display the latest feeds
+		fetchLatestFeeds();
+	</script>
+</body>
+</html>
